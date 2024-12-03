@@ -12,7 +12,7 @@ char *token; // to split option and address
 int n; // Option
 unsigned int tmp_address;
 struct Cache Ins_Cache[INS_SETS][INS_WAY], Data_Cache[DATA_SETS][DATA_WAY];
-struct Stats Stats_Cache;
+struct Stats DataStats, InsStats;
 //Communication with L2
 void L2COM(int set_index, int line_index, int type) {
 
@@ -246,7 +246,7 @@ void DataHit(int set_index, int line_index, int n) {
     // Notify L2 about the access
     L2COM(set_index, line_index, -1); //-1 is the types do not doing anything to L2 communication
     // Increment cache hit statistics
-    Stats_Cache.Cache_Hit++;
+    DataStats.Cache_Hit++;
 }
 
 
@@ -288,7 +288,7 @@ void DataMiss(int set_index, int line_index, int new_tag, int n, char *debugMess
 	//Update it become MRU, after evict data 
 	DataUpdateLRU(set_index, line_index); // update this line to MRU
 	//Count for the cache miss
-	Stats_Cache.Cache_Miss++;
+	DataStats.Cache_Miss++;
 }
 
 //Function to handle  data/write operation => Results in cache read/write operation
@@ -382,7 +382,7 @@ void InsHit(int set_index, int line_index, int n) { //represents the types of op
 	UpdateState_InsCache(set_index, line_index, n);
 	InsUpdateLRU(set_index, line_index); // update this line to MRU
 	L2COM(set_index, line_index, -1);
-	Stats_Cache.Cache_Hit++;
+	InsStats.Cache_Hit++;
 }
 
 // When we get a miss
@@ -396,7 +396,7 @@ void InsMiss(int set_index, int line_index, int new_tag, int n, char *debugMess)
 	Ins_Cache[set_index][line_index].byte_offset = ins_offset;
 	InsUpdateLRU(set_index, line_index); // update this line to MRU
 	L2COM(set_index, line_index, 3);
-	Stats_Cache.Cache_Miss++;
+	InsStats.Cache_Miss++;
 }
 
 // Handles the flow for the instruction cache
@@ -462,10 +462,15 @@ void PrintInsCache(void) {
 	}
 }
 void StatsClear(){
-    Stats_Cache.Cache_Read = 0;
-	Stats_Cache.Cache_Write = 0;
-	Stats_Cache.Cache_Hit = 0;
-	Stats_Cache.Cache_Miss = 0;
+    DataStats.Cache_Read = 0;
+	DataStats.Cache_Write = 0;
+	DataStats.Cache_Hit = 0;
+	DataStats.Cache_Miss = 0;
+
+	InsStats.Cache_Read = 0;
+	InsStats.Cache_Write = 0;
+	InsStats.Cache_Hit = 0;
+	InsStats.Cache_Miss = 0;
 	return;
 }
 
@@ -473,15 +478,26 @@ void PrintStats(){
 	float ratio; 
 	float total;
 	
-	total = Stats_Cache.Cache_Hit + Stats_Cache.Cache_Miss;
-	ratio = Stats_Cache.Cache_Hit / total * 100; 
+	total = InsStats.Cache_Hit + InsStats.Cache_Miss;
+	ratio = InsStats.Cache_Hit / total * 100; 
 	
-	printf("\n~~~~~~~~~~~~~ STATISTICS ~~~~~~~~~~~~~\n");
-	printf("Number of cache reads: %d\n", Stats_Cache.Cache_Read);
-	printf("Number of cache writes: %d\n", Stats_Cache.Cache_Write);
-	printf("Number of cache hits: %d\n", Stats_Cache.Cache_Hit);
-	printf("Number of cache misses: %d\n", Stats_Cache.Cache_Miss);
+	printf("\n~~~~~~~~~~~~~ Instruction Statistics ~~~~~~~~~~~~~\n");
+	printf("Number of cache reads: %d\n", InsStats.Cache_Read);
+	printf("Number of cache writes: %d\n", InsStats.Cache_Write);
+	printf("Number of cache hits: %d\n", InsStats.Cache_Hit);
+	printf("Number of cache misses: %d\n", InsStats.Cache_Miss);
 	printf("Hit ratio percentage: %.2f %% \n", ratio);
+
+	total = DataStats.Cache_Hit + DataStats.Cache_Miss;
+	ratio = DataStats.Cache_Hit / total * 100; 
+
+	printf("\n~~~~~~~~~~~~~ Data Statistics ~~~~~~~~~~~~~\n");
+	printf("Number of cache reads: %d\n", DataStats.Cache_Read);
+	printf("Number of cache writes: %d\n", DataStats.Cache_Write);
+	printf("Number of cache hits: %d\n", DataStats.Cache_Hit);
+	printf("Number of cache misses: %d\n", DataStats.Cache_Miss);
+	printf("Hit ratio percentage: %.2f %% \n", ratio);
+
 	return;	
 }
 void AddressSplit() {
@@ -505,17 +521,17 @@ void menu(int key) {
 	AddressSplit();
 	switch(key) {
 		case L1_READ_DATA:			
-			Stats_Cache.Cache_Read++;
+			DataStats.Cache_Read++;
 			DataReadWrite(data_index, data_tag, key);
 			break;
 			
 		case L1_WRITE_DATA:
-			Stats_Cache.Cache_Write++;
+			DataStats.Cache_Write++;
 			DataReadWrite(data_index, data_tag, key);
 			break;
 			
 		case L1_READ_INST:
-			Stats_Cache.Cache_Read++;
+			InsStats.Cache_Read++;
 			InsRead(ins_index, ins_tag, key);
 			break;
 			
@@ -547,58 +563,72 @@ void menu(int key) {
 			printf("\nYour choice is unavaiable!!");
 			break;
 	}
-	PrintDataCache();
-	PrintInsCache();
-	PrintL2COM();
-	PrintStats();
-	system("pause");
+	// PrintDataCache();
+	// PrintInsCache();
+	// PrintL2COM();
+	// PrintStats();
+	// system("pause");
 	// system("cls");
 }
 
 int main(int argc, char *argv[]) {
-	if(argc == 3) { // input in command line
-		mode = atoi(argv[1]); // mode
-		// TraceFile = argv[2]; // trace file name
-		strcpy(TraceFile, argv[2]); 
-	}
-	else { // require to select mode
-		printf("\t=============================================================================\n");
-		printf("\tMode 0: Displays statistics summary and responses to commands from trace file\n");
-		printf("\tMode 1: Display mode 0 and the L2 communication from trace file\n");
-		printf("\tMode 2: Demo multiple trace file with mode 1\n");
-		printf("\t=============================================================================\n");
-		printf("\t-----> Your select: ");
-		scanf("%d", &mode);
-		if(mode < 0 || mode > 2) {
-			printf("\nYour choice is unavaiable!!");
-			return -1;
-		}
-	}
-	fclose(fopen(ComFile, "w")); // clear L2 communication history
-	InsClear();
-	DataClear();
-	strcpy(TraceFile, "traceFile.txt");
-	do {	
-		printf("\nEnter the trace file name: ");
-    	scanf("%99s", TraceFile);
-    	fp = fopen(TraceFile, "r");
-    	if (!fp) {
-        printf("\nFile '%s' does not exist!! Try again.\n", TraceFile);
+    if (argc == 3) { // Expecting mode and trace file as command-line arguments
+        mode = atoi(argv[1]); // Convert mode to integer
+        strcpy(TraceFile, argv[2]); // Copy the trace file name
+    } else { // Prompt user for mode if not provided
+        printf("\t=============================================================================\n");
+        printf("\tMode 0: Displays statistics summary and responses to commands from trace file\n");
+        printf("\tMode 1: Display mode 0 and the L2 communication from trace file\n");
+        printf("\tMode 2: Demo multiple trace file with mode 1\n");
+        printf("\t=============================================================================\n");
+        printf("\t-----> Your select: ");
+        scanf("%d", &mode);
+        if (mode < 0 || mode > 2) {
+            printf("\nInvalid mode selected! Exiting program.\n");
+            return -1;
+        }
+        printf("\nEnter the trace file name: ");
+        scanf("%99s", TraceFile);
     }
-		
-		while(fgets(TraceLine, sizeof(TraceLine), fp)) {
-			printf("\n%s", TraceLine);
-			token = strtok(TraceLine, " ");
-			n = atoi(token);
-			while(token != NULL) {
-				tmp_address = strtoul(token, NULL, 16);
-				token = strtok(NULL, " ");
-			}
-			if(tmp_address)
-				menu(n);
-		}
-		fclose(fp);
-	}while(mode == 2);
 
-	return 0;
+    // Clear previous communication history
+    fclose(fopen(ComFile, "w"));
+    InsClear();
+    DataClear();
+
+    // Main processing loop
+    do {
+        fp = fopen(TraceFile, "r");
+        if (!fp) {
+            printf("\nFile '%s' does not exist! Please try again.\n", TraceFile);
+            return -1; // Exit if the file does not exist
+        }
+
+        while (fgets(TraceLine, sizeof(TraceLine), fp)) {
+            printf("\n%s", TraceLine);
+            token = strtok(TraceLine, " ");
+            n = atoi(token);
+            while (token != NULL) {
+                tmp_address = strtoul(token, NULL, 16);
+                token = strtok(NULL, " ");
+            }
+            if (tmp_address) {
+                menu(n);
+            }else if (n == 9 && tmp_address == 0) {
+                menu(9);
+            }
+        }
+        fclose(fp);
+
+        // For mode 2, allow the user to enter another trace file
+        if (mode == 2) {
+            printf("\nEnter another trace file name (or type 'exit' to quit): ");
+            scanf("%99s", TraceFile);
+            if (strcmp(TraceFile, "exit") == 0) {
+                break; // Exit the loop if user types 'exit'
+            }
+        }
+    } while (mode == 2);
+
+    return 0;
 }
