@@ -25,22 +25,23 @@ void L2COM(int set_index, int line_index, int type)
 		printf("Could not open communication history file.\n");
 		return;
 	}
-	if (mode != 0 && (type >= 0 && type <= 4))
-	{
-		if (type == 2)																									// evict or snoop dirty line
-			fprintf(com, "\n\t    Write to L2                      <0x%X>", Data_Cache[set_index][line_index].address); // flush
-		else if (type == 0)																								// READ OPERATION read miss in L1 and L1 need to fetch these data back from L2
-			fprintf(com, "\n\t    Read from L2                     <0x%X>", tmp_address);
-		else if (type == 1) // WRITE OPERATION issued that missed in L1 , L1 must fetch data from L2(if it exist) and gain for owenership of the cache line before modifying it
-			fprintf(com, "\n\t    Read for Ownership from L2       <0x%X>", tmp_address);
-		else if (type == 3) // instruction communicate
-			fprintf(com, "\n\t    Read from L2                     <0x%X>", tmp_address);
-		else if (type == -1)
-			fprintf(com, "\n\t    Do nothing");
-		return;
-		fprintf(com, "\n----------------------------------------------------------------------");
+	if (mode != 0) {
+    		if (type >= 0 && type <= 4) {
+        		if (type == 2) // evict or snoop dirty line
+           			fprintf(com, "\n\t    Write to L2                      <0x%X>", Data_Cache[set_index][line_index].address); // flush
+        		else if (type == 0) // READ OPERATION
+            			fprintf(com, "\n\t    Read from L2                     <0x%X>", tmp_address);
+        		else if (type == 1) // WRITE OPERATION
+            			fprintf(com, "\n\t    Read for Ownership from L2       <0x%X>", tmp_address);
+        		else if (type == 3) // instruction communicate
+            			fprintf(com, "\n\t    Read from L2                     <0x%X>", tmp_address);
+    	} else if (type == -1) {
+        	fprintf(com, "\n\t    Do nothing");
+    	}
 	}
-	fclose(com);
+	if (com != NULL) {
+    		fclose(com);
+	}
 }
 
 void PrintL2COM()
@@ -63,8 +64,8 @@ Event in this cache:
 	- Reset: reset the cache line(system or cache reset)
 	- L1_Read_Data: Read data from L1 cache
 	- L1_Write_Data: Write data to L1 cache
-	- L2_Evict: Eviction from L2 cache
-	- L2_SNOOP_DATA:
+	- L2_Evict: Eviction command from L2 cache
+	- L2_SNOOP_DATA: 
 */
 // Function for data cache
 void UpdateState_DataCache(int set, int way, int n)
@@ -89,7 +90,7 @@ void UpdateState_DataCache(int set, int way, int n)
 		}
 		// The events does not affect to read write at Modified state
 		else
-		{									  // Data Read or Data Write dont change state (5)
+		{			// Data Read or Data Write dont change state (5)
 			Data_Cache[set][way].state = 'M'; // Remain at the same state of Modified line
 		}
 		break;
