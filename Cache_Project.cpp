@@ -405,9 +405,9 @@ void PrintDataCache(void)
 		printf("Error: Could not open communication file for writing.\n");
 		return;
 	}
-	fprintf(com, "\n\n======================================================================");
-	fprintf(com, "\n\t\t\t     DATA CACHE");
-	fprintf(com, "\n======================================================================\n");
+	fprintf(com, "\n\n===========================================");
+	fprintf(com, "\n\t\t\t\t\t\t\t\t\t\t\t\t DATA CACHE");
+	fprintf(com, "\n===========================================\n");
 
 	printf("\n\n======================================================================");
 	printf("\n\t\t\t     DATA CACHE");
@@ -548,9 +548,9 @@ void PrintInsCache(void)
 		printf("Error: Could not open communication file for writing.\n");
 		return;
 	}
-	fprintf(com, "\n\n======================================================================");
-	fprintf(com, "\n\t\t\t  INSTRUCTION CACHE");
-	fprintf(com, "\n======================================================================\n");
+	fprintf(com, "\n\n================================================");
+	fprintf(com, "\n\t\t\t\t\t\t\t\t\t INSTRUCTION CACHE");
+	fprintf(com, "\n================================================\n");
 
 	printf("\n\n======================================================================");
 	printf("\n\t\t\t  INSTRUCTION CACHE");
@@ -566,13 +566,13 @@ void PrintInsCache(void)
 					fprintf(com, "------------------------------SET %d--------------------------------\n", set_index);
 					printf("------------------------------SET %d--------------------------------\n", set_index);
 				}
-				fprintf(com, "      WAY: %d | VALID: %d | TAG: %X LRU: %d | ADDRESS: 0x%X \n",
+				fprintf(com, "      WAY: %d | VALID: %d | DIRTY: 0 | TAG: %X LRU: %d | ADDRESS: 0x%X \n",
 						line_index,
 						(Ins_Cache[set_index][line_index].state == 'V'),
 						Ins_Cache[set_index][line_index].tag,
 						Ins_Cache[set_index][line_index].lru,
 						Ins_Cache[set_index][line_index].address);
-				printf("      WAY: %d | VALID: %d | TAG: %X LRU: %d | ADDRESS: 0x%X \n",
+				printf("      WAY: %d | VALID: %d | DIRTY: 0 | TAG: %X LRU: %d | ADDRESS: 0x%X \n",
 					   line_index,
 					   (Ins_Cache[set_index][line_index].state == 'V'),
 					   Ins_Cache[set_index][line_index].tag,
@@ -609,7 +609,14 @@ void PrintStats()
 	float total;
 
 	total = InsStats.Cache_Hit + InsStats.Cache_Miss;
-	ratio = InsStats.Cache_Hit / total * 100;
+	if (total == 0)
+	{
+		ratio = 0;
+	}
+	else
+	{
+		ratio = InsStats.Cache_Hit / total * 100;
+	}
 
 	printf("\n~~~~~~~~~~~~~ Instruction Statistics ~~~~~~~~~~~~~\n");
 	printf("Number of cache reads: %d\n", InsStats.Cache_Read);
@@ -626,7 +633,14 @@ void PrintStats()
 	fprintf(com, "Hit ratio percentage: %.2f %% \n", ratio);
 
 	total = DataStats.Cache_Hit + DataStats.Cache_Miss;
-	ratio = DataStats.Cache_Hit / total * 100;
+	if (total == 0)
+	{
+		ratio = 0; // No accesses, so the hit ratio is 0%
+	}
+	else
+	{
+		ratio = DataStats.Cache_Hit / total * 100;
+	}
 
 	printf("\n~~~~~~~~~~~~~ Data Statistics ~~~~~~~~~~~~~\n");
 	printf("Number of cache reads: %d\n", DataStats.Cache_Read);
