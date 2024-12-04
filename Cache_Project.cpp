@@ -58,169 +58,145 @@ void PrintL2COM()
 	}
 	fclose(readHistory);
 }
-// MVI protocol:
+//MVI protocol:
 /*
 Event in this cache:
-	- Reset: reset the cache line(system or cache reset)
-	- L1_Read_Data: Read data from L1 cache
-	- L1_Write_Data: Write data to L1 cache
-	- L2_Evict: Eviction command from L2 cache
-	- L2_SNOOP_DATA: 
+    - Reset: reset the cache line(system or cache reset)
+    - L1_Read_Data: Read data from L1 cache
+    - L1_Write_Data: Write data to L1 cache
+    - L2_Evict: Eviction from L2 cache
+    - L2_SNOOP_DATA: 
 */
-// Function for data cache
-void UpdateState_DataCache(int set, int way, int n)
-{
-	// Specify cache and set way in 2D array
-	switch (Data_Cache[set][way].state)
-	{
-	// in case current state is Modified
-	case 'M':
-		// Use n to represents the events or operations that triggers the state change
-		if (n == RESET || n == L2_EVICT)
-		{ // (6) If reset the data in this cache line and the L2 is evict data to
-			// Reset
-			Data_Cache[set][way].state = 'I'; // Change the state to from modified to invalid
-		}
-		// If the cache line is in Modified and snooped by L2, the data written back to L2 ensure inclusivity(perform write back operation)
-		else if (n == L2_SNOOP_DATA)
-		{ // (8)
-			// Read from L2 (snoop data)
-			Data_Cache[set][way].state = 'V'; // Change to "V" state -> Hold a clean copy that data matches L2 have
-											  // The cache still have a data but not exclusive owernship
-		}
-		// The events does not affect to read write at Modified state
-		else
-		{			// Data Read or Data Write dont change state (5)
-			Data_Cache[set][way].state = 'M'; // Remain at the same state of Modified line
-		}
-		break;
-
-	// in case current state is Valid
-	case 'V':
-		if (n == RESET)
-		{ // (2)
-			// Reset
-			Data_Cache[set][way].state = 'I';
-		}
-		else if (n == L1_WRITE_DATA)
-		{ // (3)
-			// Data Write (Write hit)
-			Data_Cache[set][way].state = 'M';
-		}
-		else if (n == L2_EVICT)
-		{
-			Data_Cache[set][way].state = 'I';
-		}
-		else
-		{ // Data Read dont change state (4)
-			Data_Cache[set][way].state = 'V';
-		}
-		break;
-
-	// in case current state is Invalid
-	default:
-		if (n == L1_READ_DATA || n == L1_WRITE_DATA)
-		{ // (1)
-			// Data Read or first Write
-			Data_Cache[set][way].state = 'V';
-		}
-		else // Evict from L2 or Reset
-			Data_Cache[set][way].state = 'I';
-		break;
+//Function for data cache
+void UpdateState_DataCache(int set, int way, int n){
+    //Specify cache and set way in 2D array 
+	switch(Data_Cache[set][way].state) {
+		// in case current state is Modified
+		case 'M': 
+            //Use n to represents the events or operations that triggers the state change
+			if(n == RESET || n == L2_EVICT) { // (6) If reset the data in this cache line and the L2 is evict data to 
+				// Reset
+				Data_Cache[set][way].state = 'I'; //Change the state to from modified to invalid
+			}
+            //If the cache line is in Modified and snooped by L2, the data written back to L2 ensure inclusivity(perform write back operation)
+			else if(n == L2_SNOOP_DATA) { // (8)
+				// Read from L2 (snoop data)
+				Data_Cache[set][way].state = 'V'; //Change to "V" state -> Hold a clean copy that data matches L2 have
+                //The cache still have a data but not exclusive owernship
+			}
+            //The events does not affect to read write at Modified state
+			else { // Data Read or Data Write dont change state (5)
+				Data_Cache[set][way].state = 'M'; //Remain at the same state of Modified line
+			}
+			break;
+		
+		// in case current state is Valid
+		case 'V': 
+			if(n == RESET) { // (2)
+				// Reset
+				Data_Cache[set][way].state = 'I';
+			}
+			else if(n == L1_WRITE_DATA) { // (3)
+				// Data Write (Write hit)
+				Data_Cache[set][way].state = 'M';
+			}
+            else if(n == L2_EVICT){
+                Data_Cache[set][way].state = 'I';
+            }
+			else { // Data Read dont change state (4)
+				Data_Cache[set][way].state = 'V';
+			}
+			break;
+		
+		// in case current state is Invalid
+		default:
+			if(n == L1_READ_DATA || n == L1_WRITE_DATA) { // (1)
+				// Data Read or first Write
+				Data_Cache[set][way].state = 'V';
+			}
+			else // Evict from L2 or Reset
+				Data_Cache[set][way].state = 'I';
+			break;	
 	}
 }
 
-// Function for instruction cache
-void UpdateState_InsCache(int set, int way, int n)
-{
-	switch (Ins_Cache[set][way].state)
-	{
-	// in case current state is Valid
-	case 'V':
-		if (n == RESET || n == L2_EVICT)
-		{ // (2)
-			// Reset
-			Ins_Cache[set][way].state = 'I';
-		}
-		else if (n == L1_READ_INST)
-		{ // (3)
-			// Instruction fetch
-			Ins_Cache[set][way].state = 'V';
-		}
-		break;
-
-	// in case current state is Invalid
-	default:
-		// Line transitions to valid because the data is fetched and made usable
-		if (n == L1_READ_INST)
-		{ // (1)
-			// Instruction fetch
-			Ins_Cache[set][way].state = 'V';
-		}
-		else if (n == RESET || n == L2_EVICT)
-		{ // (4)
-			// Reset
-			Ins_Cache[set][way].state = 'I';
-		}
-		break;
+//Function for instruction cache 
+void UpdateState_InsCache(int set, int way, int n){
+	switch(Ins_Cache[set][way].state) {	
+		// in case current state is Valid
+		case 'V': 
+			if(n == RESET || n == L2_EVICT) { // (2)
+				// Reset
+				Ins_Cache[set][way].state = 'I';
+			}
+			else if(n == L1_READ_INST) { // (3)
+				// Instruction fetch
+				Ins_Cache[set][way].state = 'V';
+			}
+			break;
+			
+		// in case current state is Invalid
+		default:
+		//Line transitions to valid because the data is fetched and made usable
+			if(n == L1_READ_INST) { // (1)
+				// Instruction fetch
+				Ins_Cache[set][way].state = 'V';
+			}
+			else if(n == RESET || n == L2_EVICT) { // (4)
+				// Reset
+				Ins_Cache[set][way].state = 'I';
+			}
+			break;
 	}
 }
 
-// LRU policy
-// This function use for update LRU values for the instruction cache, when a line is accessed or written
-void InsUpdateLRU(int set, int way) // The set and way specification the location of the cache. The set is bit with a way is 2 way for instruction cache(0,1)
-{
-	if (Ins_Cache[set][way].lru == -1)
-	{ // first time will be Write Through, this is first time access for (lru == -1)
+//LRU policy
+//This function use for update LRU values for the instruction cache, when a line is accessed or written 
+void InsUpdateLRU(int set, int way) //The set and way specification the location of the cache. The set is bit with a way is 2 way for instruction cache(0,1)
+{	
+	if(Ins_Cache[set][way].lru == -1) { // first time will be Write Through, this is first time access for (lru == -1)
 		// From initialized cache, so -1 means empty way
 		Ins_Cache[set][way].lru = INS_WAY - 1; // Now this line is MRU, lines get the highest rank (INS_WAY-1) while other lines decrement their ranks
-											   // INS_WAY -1 assign MRU rank to the accessed cache line
+        //INS_WAY -1 assign MRU rank to the accessed cache line
 
-		for (int i = way - 1; i >= 0; i--)
-		{ // Decrement the rank of the preceding lines in the same set(way -1 to 0)
-			// Decrementing LRU value of each line before
-			Ins_Cache[set][i].lru--;
+		for(int i = way-1; i >= 0; i--) { //Decrement the rank of the preceding lines in the same set(way -1 to 0) 
+			// Decrementing LRU value of each line before 
+			Ins_Cache[set][i].lru--;		
 		}
 	}
-	// Subsequent access (Hit or miss) LRU >= 0
-	// Loop through all cache lines in the set
-	else if (Ins_Cache[set][way].lru >= 0)
-	{ // a hit or miss
-		for (int i = 0; i < INS_WAY; i++)
-		{ // Search all lines
+    //Subsequent access (Hit or miss) LRU >= 0
+    //Loop through all cache lines in the set
+	else if(Ins_Cache[set][way].lru >= 0) { // a hit or miss
+		for(int i = 0; i < INS_WAY; i++) { // Search all lines
 			// every line has LRU value greater than current LRU will be decremented
-			if (Ins_Cache[set][i].lru > Ins_Cache[set][way].lru)
-				Ins_Cache[set][i].lru--;
+			if(Ins_Cache[set][i].lru > Ins_Cache[set][way].lru)
+				Ins_Cache[set][i].lru--; 
 		}
-		// update the accessed line LRU to INS_WAY -1 (making it the MRU)
+        //update the accessed line LRU to INS_WAY -1 (making it the MRU)
 		Ins_Cache[set][way].lru = INS_WAY - 1; // Now this line is MRU
-	}
+	}	
 }
-// The same with InsUpdateLRU
+//The same with InsUpdateLRU
 void DataUpdateLRU(int set, int way)
 {
-	if (Data_Cache[set][way].lru == -1)
-	{ // first time will be Write Through
+	if(Data_Cache[set][way].lru == -1) { // first time will be Write Through
 		// From initialized cache, so -1 means empty way
 		Data_Cache[set][way].lru = DATA_WAY - 1; // Now this line is MRU
-		for (int i = way - 1; i >= 0; i--)
-		{
-			// Decrementing LRU value of each line before
-			Data_Cache[set][i].lru--;
+		for(int i = way-1; i >= 0; i--) { 
+			// Decrementing LRU value of each line before 
+			Data_Cache[set][i].lru--;		
 		}
 	}
-	else if (Data_Cache[set][way].lru >= 0)
-	{ // a hit or miss
-		for (int i = 0; i < DATA_WAY; i++)
-		{ // Search all lines
+	else if(Data_Cache[set][way].lru >= 0) { // a hit or miss
+		for(int i = 0; i < DATA_WAY; i++) { // Search all lines
 			// every line has LRU value greater than current LRU will be decremented
-			if (Data_Cache[set][i].lru > Data_Cache[set][way].lru)
-				Data_Cache[set][i].lru--;
+			if(Data_Cache[set][i].lru > Data_Cache[set][way].lru)
+				Data_Cache[set][i].lru--; 
 		}
 		Data_Cache[set][way].lru = DATA_WAY - 1; // Now this line is MRU
-	}
+	}	
 }
-// Data Cache:
+//Data Cache:
 /*
 - L1 data cache
 - 4-way -> LRU is 2 bit, 0-3
@@ -232,163 +208,139 @@ void DataUpdateLRU(int set, int way)
 #define	I				2
 */
 
-// Function to deal with evict data from a data cache
-void DataEvict(int set_index, uint32_t evict_tag)
-{ // Identify for a specific line in an specific set to evict, set_index cache set identify
-	// line_index represents for the first way in the cache set. Still ++ until reach 4 way, after each iteration. line_index incremented by 1 to move to the nex way
-	for (int line_index = 0; line_index < DATA_WAY; line_index++)
-	{ // Loop through in 1 set and check for all lines in the cache set (DATA_WAY)
+//Function to deal with evict data from a data cache
+void DataEvict(int set_index, uint32_t evict_tag) { //Identify for a specific line in an specific set to evict, set_index cache set identify
+	//line_index represents for the first way in the cache set. Still ++ until reach 4 way, after each iteration. line_index incremented by 1 to move to the nex way
+	for(int line_index = 0; line_index < DATA_WAY; line_index++) { //Loop through in 1 set and check for all lines in the cache set (DATA_WAY)
 		// Data_Cache[set_index][line_index].lru = -1; // default LRU value when empty
-		if (Data_Cache[set_index][line_index].tag == evict_tag)
-		{ // If statements define for the cache line's tag matches evict_tag
-			// Data_Cache[set_index][line_index].address >>= 32;
-			// handle dirty bit
-			if (Data_Cache[set_index][line_index].state == 'M')
-			{
+		if(Data_Cache[set_index][line_index].tag == evict_tag) { //If statements define for the cache line's tag matches evict_tag
+			//Data_Cache[set_index][line_index].address >>= 32;
+			//handle dirty bit	
+			if(Data_Cache[set_index][line_index].state == 'M') {
 				printf("Evict dirty data of way %d\n", line_index);
-				L2COM(set_index, line_index, 2); // write back to L2 to maintain inclusivity
+				L2COM(set_index, line_index, 2); //write back to L2 to maintain inclusivity
 				UpdateState_DataCache(set_index, line_index, L2_EVICT);
 			}
-			else if (Data_Cache[set_index][line_index].state == 'V')
-			{
+			else if(Data_Cache[set_index][line_index].state == 'V'){
 				printf("Evict way %d\n", line_index);
-				UpdateState_DataCache(set_index, line_index, L2_EVICT);
+                UpdateState_DataCache(set_index, line_index, L2_EVICT);
+                
 			}
-			break; // Exit loop
+			break; //Exit loop
 		}
 	}
 }
 
 // If the tag which we are finding, present in the set -> updating the state and LRU
-// Void use for data cache hits occurs. THe requested data is found in the specified cache line within set and line
-void DataHit(int set_index, int line_index, int n)
-{
-	// Print hit type based on the operation
-	if (n == 0)
-	{
-		printf("Data cache: Read Hit\n"); // Read operation
-	}
-	else
-	{
-		printf("Data cache: Write Hit\n"); // Write operation
-	}
-	// Update the state of the cache line
+// Void use for data cache hits occurs. THe requested data is found in the specified cache line within set and line 
+void DataHit(int set_index, int line_index, int n) {
+    // Print hit type based on the operation
+    if (n == 0) {
+        printf("Data cache: Read Hit\n"); // Read operation
+    } else {
+        printf("Data cache: Write Hit\n"); // Write operation
+    }
+    // Update the state of the cache line 
 	/*Data hit occurs when the requested data found in the cache. Read hits keep the data in Valid
 	  Write hit often transition the cache line to a Modified state => has been written into L1 data cache and differ from L2
 	  Tracking write operation: Write hit occurs , the cache need to ensure that "data in this line has been modified" => important that this line need to write back to L2 cache => ensure consistency*/
-	UpdateState_DataCache(set_index, line_index, n); // Update the state of cache line
-	// Do not change address unless byte_offset is different
-	if (Data_Cache[set_index][line_index].byte_offset != data_offset)
-	{
-		Data_Cache[set_index][line_index].address = tmp_address;
-		Data_Cache[set_index][line_index].byte_offset = data_offset;
-	}
-	// Update this cache line's LRU to MRU
-	DataUpdateLRU(set_index, line_index);
-	// Notify L2 about the access
-	L2COM(set_index, line_index, -1); //-1 is the types do not doing anything to L2 communication
-	// Increment cache hit statistics
-	DataStats.Cache_Hit++;
+    UpdateState_DataCache(set_index, line_index, n); //Update the state of cache line
+    // Do not change address unless byte_offset is different
+    if (Data_Cache[set_index][line_index].byte_offset != data_offset) {
+        Data_Cache[set_index][line_index].address = tmp_address;
+        Data_Cache[set_index][line_index].byte_offset = data_offset;
+    }
+    // Update this cache line's LRU to MRU
+    DataUpdateLRU(set_index, line_index);
+    // Notify L2 about the access
+    L2COM(set_index, line_index, -1); //-1 is the types do not doing anything to L2 communication
+    // Increment cache hit statistics
+    DataStats.Cache_Hit++;
 }
 
-// Void to handle Data Miss operation => Necessary actions to fetch the data, evict
-void DataMiss(int set_index, int line_index, int new_tag, int n, char *debugMess)
-{
-	// Handling a read or write miss
-	if (n == 0)
-	{												   // n==0 to indicate a read miss
+
+//Void to handle Data Miss operation => Necessary actions to fetch the data, evict 
+void DataMiss(int set_index, int line_index, int new_tag, int n, char *debugMess) {
+	//Handling a read or write miss 
+	if(n == 0) { //n==0 to indicate a read miss
 		printf("Data cache: Read Miss %s", debugMess); // debug messages printed for easier or logging
 	}
-	// If a write operation. On the first start it will write through to the cache
-	else if (n == 1)
-	{
+	//If a write operation. On the first start it will write through to the cache
+	else if(n == 1) {
 		printf("Data cache: Write Miss but Write Through because first write %s", debugMess); // debug messages
 	}
 	/*Identify the cache line to evict. The tag of line currently occupying the selected cache location with set_index and line_index */
 	/*The Data Request is not in CPU => not present in the cache => Must be fetched from a lower memory level => free up space for set when full*/
-	int evict_tag = Data_Cache[set_index][line_index].tag; // find old tag to evict	=> allow me to ensure what data is being evicted, if data is if dirty(modified line)must be written back to L2
-	// Dirty data(modified line) in L1 is written back to L2 during eviction
+	int evict_tag = Data_Cache[set_index][line_index].tag; // find old tag to evict	=> allow me to ensure what data is being evicted, if data is if dirty(modified line)must be written back to L2 
+	//Dirty data(modified line) in L1 is written back to L2 during eviction
 	L2COM(set_index, line_index, n); // read(read operation) or read for owenership(write operation from L2 to L1)
-	// Indicate if lru != -1 (this line is valid and not empty) -> eviction is required
-	if (Data_Cache[set_index][line_index].lru != -1)
-	{									 // skip when set contain empty way
-		DataEvict(set_index, evict_tag); // So we will evict this line
+	//Indicate if lru != -1 (this line is valid and not empty) -> eviction is required
+	if(Data_Cache[set_index][line_index].lru != -1) { // skip when set contain empty way
+		DataEvict(set_index, evict_tag); //So we will evict this line 	
 	}
-	// Update the cache line with the new data
-	Data_Cache[set_index][line_index].address = tmp_address; // Full address of new data
-	Data_Cache[set_index][line_index].tag = new_tag;		 // The new tag value extracted from
+	//Update the cache line with the new data
+	Data_Cache[set_index][line_index].address = tmp_address; //Full address of new data
+	Data_Cache[set_index][line_index].tag = new_tag; //The new tag value extracted from 
 	Data_Cache[set_index][line_index].set = set_index;
 	Data_Cache[set_index][line_index].byte_offset = data_offset;
-	// Write operation L1 when write through must be written into L2 maintain inclusivity
-	if (n == 1)
-	{
+	//Write operation L1 when write through must be written into L2 maintain inclusivity
+	if(n == 1){ 
 		L2COM(set_index, line_index, 4); // write through in case first write
 	}
 	/*Got DataMiss, after fetching data from L2 */
-	// Update the state of cache line making valid and modified
-	/*On a L1_WRITE_DATA V become M , I become V
+	//Update the state of cache line making valid and modified
+	/*On a L1_WRITE_DATA V become M , I become V 
 	On a L1_READ_DATA I fetched data from L2, that means it will update to V line
 	On a Reset or Eviction => If does not have enough space => May be will evict data in M V => It will become invalid and make space for new data income*/
 
 	UpdateState_DataCache(set_index, line_index, n);
-	// Update it become MRU, after evict data
+	//Update it become MRU, after evict data 
 	DataUpdateLRU(set_index, line_index); // update this line to MRU
-	// Count for the cache miss
+	//Count for the cache miss
 	DataStats.Cache_Miss++;
 }
 
-// Function to handle  data/write operation => Results in cache read/write operation
-void DataReadWrite(int set_index, uint32_t req_tag, int n)
-{
-	// keep track of empty line (a cache line in the currrent set with state "I") => Used to store new data in cache of cache miss
+//Function to handle  data/write operation => Results in cache read/write operation
+void DataReadWrite(int set_index, uint32_t req_tag, int n) {
+	//keep track of empty line (a cache line in the currrent set with state "I") => Used to store new data in cache of cache miss
 	int empty_line = -1;
-	// Search for suitable cache ways for a suitable line
-	// The loop to iterates over all DATA_WAY
-	for (int i = DATA_WAY - 1; i >= 0; i--)
-	{											   // find suitable line_index
-		if (Data_Cache[set_index][i].state == 'I') // If find a line is invalid => Potential target for storing new data during a cache miss
-			empty_line = i;						   // least line_index empty line when no hit
-		else
-		{ // check valid
-			// If the current lines matches the req_tag, it means the requested data is already in cache => cache hit
-			if (Data_Cache[set_index][i].tag == req_tag)
-			{ // a hit
+	//Search for suitable cache ways for a suitable line
+	//The loop to iterates over all DATA_WAY 
+	for(int i = DATA_WAY-1; i >= 0; i--) { // find suitable line_index
+		if(Data_Cache[set_index][i].state == 'I')  //If find a line is invalid => Potential target for storing new data during a cache miss
+			empty_line = i; // least line_index empty line when no hit
+		else { // check valid
+		//If the current lines matches the req_tag, it means the requested data is already in cache => cache hit 
+			if(Data_Cache[set_index][i].tag == req_tag) { // a hit
 				// Dont need to change address since a hit
 				DataHit(set_index, i, n);
 				return; // out function when hit -> saving runtime
 			}
 		}
-	}
+	}	
 	// If this function is still running -> definitely get a miss
-	if (empty_line >= 0)
-	{
+	if(empty_line >= 0) {
 		// Contain an empty line to fill data
 		DataMiss(set_index, empty_line, req_tag, n, "(unoccupied)\n");
 	}
-	else
-	{
+	else {
 		// Line was fulled -> evict LRU line
-		for (int line_index = 0; line_index < DATA_WAY; line_index++)
-		{ // find suitable line_index
-			if (Data_Cache[set_index][line_index].lru == 0)
-			{																 // if this is LRU line_index
+		for(int line_index = 0; line_index < DATA_WAY; line_index++) { // find suitable line_index
+			if(Data_Cache[set_index][line_index].lru == 0) { // if this is LRU line_index
 				DataMiss(set_index, line_index, req_tag, n, "(conflict)\n"); // read/write and update address
-				return;														 // out function for saving runtime
+				return; // out function for saving runtime
 			}
 		}
 	}
 }
-
+	
 // Clear the entire data cache -> to make it default state -> ensure cache starts in a clean, invalid state
-void DataClear(void)
-{
-	// Loop through over 16384 set to
-	for (int set_index = 0; set_index < DATA_SETS; set_index++)
-	{
-		// Loop through over all cache lines(way) in the current set => Corresspond to a single entry in the cache
-		for (int line_index = 0; line_index < DATA_WAY; line_index++)
-		{
-			Data_Cache[set_index][line_index].lru = -1;	   // default LRU value when empty
+void DataClear(void) {
+	//Loop through over 16384 set to 
+	for(int set_index = 0; set_index < DATA_SETS; set_index++) {
+		//Loop through over all cache lines(way) in the current set => Corresspond to a single entry in the cache
+		for(int line_index = 0; line_index < DATA_WAY; line_index++) {
+			Data_Cache[set_index][line_index].lru = -1; // default LRU value when empty
 			Data_Cache[set_index][line_index].state = 'I'; // default state
 		}
 	}
@@ -735,6 +687,10 @@ void menu(int key)
 		printf("\nYour choice is unavaiable!!");
 		break;
 	}
+
+
+	/*Uncomment the following lines in order to  print step by step */ 
+
 	// PrintDataCache();
 	// PrintInsCache();
 	// PrintL2COM();
