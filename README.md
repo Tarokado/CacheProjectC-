@@ -2,14 +2,16 @@
 ## How to use
 ##WINDOWS:
 - Compile: `g++ -o Cache_Project Cache_Project.cpp`
-- Syntax: `.\Cache_Project.exe [mode(optional)] [trace_file_name]`.  
+- Syntax: `.\Cache_Project.exe [mode(optional)] [trace_file_name]`.
+           `.\Cache_Project.exe` to show a menu. 
    example: `.\Cache_Project.exe 0 trace\trace.txt`  
    `.\Cache_Project.exe 1 trace_data.txt`  
    `.\Cache_Project.exe 2 trace_evict.txt`
   
 ##MACOS/Linux:
 - Compile: `g++ -o Cache_Project Cache_Project.cpp`
-- Syntax: `./Cache_Project [mode(optional)] [trace_file_name]`.  
+- Syntax: `./Cache_Project [mode(optional)] [trace_file_name]`.
+           `.\Cache_Project.exe` to show a menu.    
    example: `./Cache_Project 0 trace/trace.txt`  
    `./Cache_Project 1 trace_data.txt`  
    `./Cache_Project 2 trace_evict.txt`
