@@ -107,7 +107,7 @@ void UpdateState_DataCache(int set, int way, int n)
 			// Data Write (Write hit)
 			Data_Cache[set][way].state = 'M';
 		}
-		else if (n == L2_EVICT)
+		else if (n == L2_EVICT) //When evict an valid line. Does not need to write back. Because the data valid line is guarantee in L2
 		{
 			Data_Cache[set][way].state = 'I';
 		}
@@ -223,7 +223,7 @@ void DataUpdateLRU(int set, int way)
 // Data Cache:
 /*
 - L1 data cache
-- 4-way -> LRU is 2 bit, 0-3
+- 4-way -> LRU is 2 bit, 0-3(00,01,10,11)
 
 
 // State
@@ -235,7 +235,7 @@ void DataUpdateLRU(int set, int way)
 // Function to deal with evict data from a data cache
 void DataEvict(int set_index, uint32_t evict_tag)
 { // Identify for a specific line in an specific set to evict, set_index cache set identify
-	// line_index represents for the first way in the cache set. Still ++ until reach 4 way, after each iteration. line_index incremented by 1 to move to the nex way
+	// line_index represents for the first way in the cache set. Still ++ until reach 4 way, after each iteration. line_index incremented by 1 to move to the next way
 	for (int line_index = 0; line_index < DATA_WAY; line_index++)
 	{ // Loop through in 1 set and check for all lines in the cache set (DATA_WAY)
 		// Data_Cache[set_index][line_index].lru = -1; // default LRU value when empty
@@ -243,6 +243,7 @@ void DataEvict(int set_index, uint32_t evict_tag)
 		{ // If statements define for the cache line's tag matches evict_tag
 			// Data_Cache[set_index][line_index].address >>= 32;
 			// handle dirty bit
+			//Got an Eviction for line modified and line valid. We do not need to change the state of LRU 
 			if (Data_Cache[set_index][line_index].state == 'M')
 			{
 				printf("Evict dirty data of way %d\n", line_index);
