@@ -14,29 +14,6 @@ WAY: 1 | VALID: 1 | DIRTY: 0 | TAG: 0200 | LRU: 3 | ADDRESS: 0x20019D88
 ------------------------------SET 571--------------------------------
       WAY: 0 | VALID: 1 | DIRTY: 0 | TAG: 4 LRU: 1 | ADDRESS: 0x408ED4 
 
-			  L2 COMMUNICATION: 
-
-===========================================
-												 DATA CACHE
-===========================================
-------------------------------SET 1654--------------------------------
-WAY: 0 | VALID: 1 | DIRTY: 1 | TAG: 0100 | LRU: 2 | ADDRESS: 0x10019D88 
-WAY: 1 | VALID: 1 | DIRTY: 1 | TAG: 0200 | LRU: 3 | ADDRESS: 0x20019D99 
-
-
-================================================
-									 INSTRUCTION CACHE
-================================================
-------------------------------SET 554--------------------------------
-      WAY: 0 | VALID: 1 | DIRTY: 0 | TAG: 4 LRU: 1 | ADDRESS: 0x408ABC 
-------------------------------SET 571--------------------------------
-      WAY: 0 | VALID: 1 | DIRTY: 0 | TAG: 4 LRU: 0 | ADDRESS: 0x408ED4 
-      WAY: 1 | VALID: 1 | DIRTY: 0 | TAG: 1 LRU: 1 | ADDRESS: 0x108ED8 
-
-			  L2 COMMUNICATION: 
-	    Read from L2                     <0x408ED4>
-	    Read from L2                     <0x10019D94>
-	    Read for Ownership from L2       <0x20019D88>
 ~~~~~~~~~~~~~ Instruction Statistics ~~~~~~~~~~~~~
 Number of cache reads: 3
 Number of cache writes: 0
@@ -51,18 +28,26 @@ Number of cache hits: 1
 Number of cache misses: 2
 Hit ratio percentage: 33.33 % 
 
-	    Read from L2                     <0x108ED8>
-	    Read from L2                     <0x408ABC>
+
+===========================================
+												 DATA CACHE
+===========================================
+
+
+================================================
+									 INSTRUCTION CACHE
+================================================
+
 ~~~~~~~~~~~~~ Instruction Statistics ~~~~~~~~~~~~~
-Number of cache reads: 6
+Number of cache reads: 0
 Number of cache writes: 0
-Number of cache hits: 3
-Number of cache misses: 3
-Hit ratio percentage: 50.00 % 
+Number of cache hits: 0
+Number of cache misses: 0
+Hit ratio percentage: 0.00 % 
 
 ~~~~~~~~~~~~~ Data Statistics ~~~~~~~~~~~~~
-Number of cache reads: 2
-Number of cache writes: 4
-Number of cache hits: 4
-Number of cache misses: 2
-Hit ratio percentage: 66.67 % 
+Number of cache reads: 0
+Number of cache writes: 0
+Number of cache hits: 0
+Number of cache misses: 0
+Hit ratio percentage: 0.00 % 
