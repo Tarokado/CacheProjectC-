@@ -447,13 +447,15 @@ void InsMiss(int set_index, int line_index, int new_tag, int n, char *debugMess)
 // Handles the flow for the instruction cache
 void InsRead(int set_index, int req_tag, int n)
 {
+	//Start with empty line = -1 ensure that no empty line was found
 	int empty_line = -1;
 	for (int i = INS_WAY - 1; i >= 0; i--)
 	{ // find suitable line_index
+		//Read Miss occurs. If a line is in Invalid state. Use to store the new instruction address. Cache miss occupy
 		if (Ins_Cache[set_index][i].state == 'I')
 			empty_line = i; // store least line_index empty line when no hit
 		else
-		{ // check valid
+		{ // check for valid if match the requested tag -> Call the InsHit to handle hit. When hit no need change address, update LRU
 			if (Ins_Cache[set_index][i].tag == req_tag)
 			{ // a hit
 				// Dont need to change address since a hit
@@ -471,6 +473,7 @@ void InsRead(int set_index, int req_tag, int n)
 	}
 	else
 	{
+		//Need consideraation
 		// Line was fulled -> evict LRU line
 		for (int i = 0; i < INS_WAY; i++)
 		{ // find suitable line_index
