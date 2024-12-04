@@ -1,12 +1,13 @@
 # CacheProject_ECE485
 ## How to use
-WINDOWS:
+##WINDOWS:
 - Compile: `g++ -o Cache_Project Cache_Project.cpp`
 - Syntax: `.\Cache_Project.exe [mode(optional)] [trace_file_name]`.  
    example: `.\Cache_Project.exe 0 trace\trace.txt`  
    `.\Cache_Project.exe 1 trace_data.txt`  
    `.\Cache_Project.exe 2 trace_evict.txt`
-MACOS/Linux:
+  
+##MACOS/Linux:
 - Compile: `g++ -o Cache_Project Cache_Project.cpp`
 - Syntax: `./Cache_Project [mode(optional)] [trace_file_name]`.  
    example: `./Cache_Project 0 trace/trace.txt`  
