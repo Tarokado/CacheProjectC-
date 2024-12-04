@@ -38,9 +38,6 @@ void L2COM(int set_index, int line_index, int type)
 		else if (type == -1)
 			fprintf(com, "\n\t    Do nothing");
 		return;
-
-		//	else
-		//		fprintf(com, "\n\t Nothing ");
 		fprintf(com, "\n----------------------------------------------------------------------");
 	}
 	fclose(com);
