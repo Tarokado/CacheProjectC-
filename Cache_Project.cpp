@@ -471,16 +471,23 @@ void InsHit(int set_index, int line_index, int n)
 }
 
 // When we get a miss
+//CPU attempts to fetch an instruction from L1 instruction cache and not in cache => Send a request to L2 cache to receive the instruction
+// If in L2 -> supplies for L1 instruction, if not request from lower memory 
 void InsMiss(int set_index, int line_index, int new_tag, int n, char *debugMess)
 {
+	//Read operation of instruction cache, when read miss occurs. Means that data is not in the cache
 	printf("Instruction cache: Read Miss %s", debugMess); // debug messages
+	//Write to the line invalid -> update to valid state
 	UpdateState_InsCache(set_index, line_index, n);
+	//Store the address
 	Ins_Cache[set_index][line_index].address = tmp_address;
-	// Change new address for line
+	// Change new address for line, with new_tag and for specific set -> store the byte_offset bits 
 	Ins_Cache[set_index][line_index].tag = new_tag;
 	Ins_Cache[set_index][line_index].set = set_index;
 	Ins_Cache[set_index][line_index].byte_offset = ins_offset;
+	//Update the line to MRU with value is 1
 	InsUpdateLRU(set_index, line_index); // update this line to MRU
+	//n == 3 Instruction Communicate with L2
 	L2COM(set_index, line_index, 3);
 	InsStats.Cache_Miss++;
 }
