@@ -1,7 +1,5 @@
 # CacheProject_ECE485
 ## How to use
-
-- After make the project, you should have an execution file named _prog_. We will use this file to run.
 WINDOWS:
 - Compile: `g++ -o Cache_Project Cache_Project.cpp`
 - Syntax: `.\Cache_Project.exe [mode(optional)] [trace_file_name]`.  
