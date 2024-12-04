@@ -594,68 +594,74 @@ void StatsClear()
 	InsStats.Cache_Miss = 0;
 	return;
 }
-
 void PrintStats()
 {
-	FILE *com = fopen(ComFile, "a"); // Open ComFile in append mode
-	if (com == NULL)
-	{
-		printf("Error: Could not open communication file for writing.\n");
-		return;
-	}
-	float ratio;
-	float total;
+    FILE *com = fopen(ComFile, "a"); 
+    if (com == NULL)
+    {
+        printf("Error: Could not open communication file for writing.\n");
+        return;
+    }
 
-	total = InsStats.Cache_Hit + InsStats.Cache_Miss;
-	if (total == 0)
-	{
-		ratio = 0;
-	}
-	else
-	{
-		ratio = InsStats.Cache_Hit / total * 100;
-	}
+    float ratio;
+    float total;
 
-	printf("\n~~~~~~~~~~~~~ Instruction Statistics ~~~~~~~~~~~~~\n");
-	printf("Number of cache reads: %d\n", InsStats.Cache_Read);
-	printf("Number of cache writes: %d\n", InsStats.Cache_Write);
-	printf("Number of cache hits: %d\n", InsStats.Cache_Hit);
-	printf("Number of cache misses: %d\n", InsStats.Cache_Miss);
-	printf("Hit ratio percentage: %.2f %% \n", ratio);
-	/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-	fprintf(com, "\n~~~~~~~~~~~~~ Instruction Statistics ~~~~~~~~~~~~~\n");
-	fprintf(com, "Number of cache reads: %d\n", InsStats.Cache_Read);
-	fprintf(com, "Number of cache writes: %d\n", InsStats.Cache_Write);
-	fprintf(com, "Number of cache hits: %d\n", InsStats.Cache_Hit);
-	fprintf(com, "Number of cache misses: %d\n", InsStats.Cache_Miss);
-	fprintf(com, "Hit ratio percentage: %.2f %% \n", ratio);
+    total = InsStats.Cache_Hit + InsStats.Cache_Miss;
+    if (total == 0)
+    {
+        ratio = 0; 
+    }
+    else
+    {
+        ratio = InsStats.Cache_Hit / total * 100;
+    }
 
-	total = DataStats.Cache_Hit + DataStats.Cache_Miss;
-	if (total == 0)
-	{
-		ratio = 0; // No accesses, so the hit ratio is 0%
-	}
-	else
-	{
-		ratio = DataStats.Cache_Hit / total * 100;
-	}
+    printf("\n~~~~~~~~~~~~~ Instruction Statistics ~~~~~~~~~~~~~\n");
+    printf("Number of cache reads: %d\n", InsStats.Cache_Read);
+    printf("Number of cache writes: %d\n", InsStats.Cache_Write);
+    printf("Number of cache hits: %d\n", InsStats.Cache_Hit);
+    printf("Number of cache misses: %d\n", InsStats.Cache_Miss);
+    printf("Hit ratio percentage: %.2f %% \n", ratio);
 
-	printf("\n~~~~~~~~~~~~~ Data Statistics ~~~~~~~~~~~~~\n");
-	printf("Number of cache reads: %d\n", DataStats.Cache_Read);
-	printf("Number of cache writes: %d\n", DataStats.Cache_Write);
-	printf("Number of cache hits: %d\n", DataStats.Cache_Hit);
-	printf("Number of cache misses: %d\n", DataStats.Cache_Miss);
-	printf("Hit ratio percentage: %.2f %% \n", ratio);
-	/*===================================== */
-	fprintf(com, "\n~~~~~~~~~~~~~ Data Statistics ~~~~~~~~~~~~~\n");
-	fprintf(com, "Number of cache reads: %d\n", DataStats.Cache_Read);
-	fprintf(com, "Number of cache writes: %d\n", DataStats.Cache_Write);
-	fprintf(com, "Number of cache hits: %d\n", DataStats.Cache_Hit);
-	fprintf(com, "Number of cache misses: %d\n", DataStats.Cache_Miss);
-	fprintf(com, "Hit ratio percentage: %.2f %% \n", ratio);
+    fprintf(com, "\n~~~~~~~~~~~~~ Instruction Statistics ~~~~~~~~~~~~~\n");
+    fprintf(com, "Number of cache reads: %d\n", InsStats.Cache_Read);
+    fprintf(com, "Number of cache writes: %d\n", InsStats.Cache_Write);
+    fprintf(com, "Number of cache hits: %d\n", InsStats.Cache_Hit);
+    fprintf(com, "Number of cache misses: %d\n", InsStats.Cache_Miss);
+    fprintf(com, "Hit ratio percentage: %.2f %% \n", ratio);
 
-	return;
+    fflush(com); 
+
+  
+    total = DataStats.Cache_Hit + DataStats.Cache_Miss;
+    if (total == 0)
+    {
+        ratio = 0; 
+    }
+    else
+    {
+        ratio = DataStats.Cache_Hit / total * 100;
+    }
+
+    printf("\n~~~~~~~~~~~~~ Data Statistics ~~~~~~~~~~~~~\n");
+    printf("Number of cache reads: %d\n", DataStats.Cache_Read);
+    printf("Number of cache writes: %d\n", DataStats.Cache_Write);
+    printf("Number of cache hits: %d\n", DataStats.Cache_Hit);
+    printf("Number of cache misses: %d\n", DataStats.Cache_Miss);
+    printf("Hit ratio percentage: %.2f %% \n", ratio);
+
+    fprintf(com, "\n~~~~~~~~~~~~~ Data Statistics ~~~~~~~~~~~~~\n");
+    fprintf(com, "Number of cache reads: %d\n", DataStats.Cache_Read);
+    fprintf(com, "Number of cache writes: %d\n", DataStats.Cache_Write);
+    fprintf(com, "Number of cache hits: %d\n", DataStats.Cache_Hit);
+    fprintf(com, "Number of cache misses: %d\n", DataStats.Cache_Miss);
+    fprintf(com, "Hit ratio percentage: %.2f %% \n", ratio);
+
+    fflush(com); 
+
+    fclose(com); 
 }
+
 void AddressSplit()
 {
 	ins_tag = tmp_address >> 20;			// Extract top 12 bits (bits 20-31)
@@ -787,6 +793,9 @@ int main(int argc, char *argv[])
 			else if (n == 9 && tmp_address == 0)
 			{
 				menu(9);
+			}else if (n == 8 && tmp_address == 0)
+			{
+				menu(8);
 			}
 		}
 		fclose(fp);
