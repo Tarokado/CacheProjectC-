@@ -1,46 +1,32 @@
 
-	    Read from L2                     <0x408ED4>
-	    Read from L2                     <0x10019D94>
+	    Read from L2                     <0x3C2400>
+	    Read for Ownership from L2       <0x800C2410>
+	    Read for Ownership from L2       <0x903C2400>
 	    Do nothing
+	    Read from L2                     <0x888C242F>
 	    Do nothing
-	    Read for Ownership from L2       <0x20019D88>
-	    Read for Ownership from L2       <0x40019D88>
+	    Read from L2                     <0xEDAC240B>
+	    Read from L2                     <0xAAAC240B>
+	    Read for Ownership from L2       <0x3C2410>
+	    Read for Ownership from L2       <0x903C2410>
+	    Write to L2                      <0x800C2410>
+	    Read for Ownership from L2       <0x800C2410>
 	    Do nothing
+	    Read for Ownership from L2       <0x600C2410>
+	    Read for Ownership from L2       <0x703C2400>
+	    Read from L2                     <0x888C242F>
+	    Read from L2                     <0x666C243E>
+	    Write to L2                      <0x903C2400>
+	    Read from L2                     <0x3C2400>
 
 ===========================================
 												 DATA CACHE
 ===========================================
-------------------------------SET 1654--------------------------------
-WAY: 0 | VALID: 1 | DIRTY: 1 | TAG: 0100 | LRU: 1 | ADDRESS: 0x10019D88 
-WAY: 1 | VALID: 1 | DIRTY: 0 | TAG: 0200 | LRU: 2 | ADDRESS: 0x20019D88 
-WAY: 2 | VALID: 1 | DIRTY: 0 | TAG: 0400 | LRU: 3 | ADDRESS: 0x40019D88 
-
-
-================================================
-									 INSTRUCTION CACHE
-================================================
-------------------------------SET 571--------------------------------
-      WAY: 0 | VALID: 1 | DIRTY: 0 | TAG: 4 LRU: 1 | ADDRESS: 0x408ED4 
-
-			  L2 COMMUNICATION: 
-~~~~~~~~~~~~~ Instruction Statistics ~~~~~~~~~~~~~
-Number of cache reads: 3
-Number of cache writes: 0
-Number of cache hits: 2
-Number of cache misses: 1
-Hit ratio percentage: 66.67 % 
-
-~~~~~~~~~~~~~ Data Statistics ~~~~~~~~~~~~~
-Number of cache reads: 1
-Number of cache writes: 3
-Number of cache hits: 1
-Number of cache misses: 3
-Hit ratio percentage: 25.00 % 
-
-
-===========================================
-												 DATA CACHE
-===========================================
+------------------------------SET 12432--------------------------------
+WAY: 0 | VALID: 1 | DIRTY: 0 | TAG: 0003 | LRU: 3 | ADDRESS: 0x3C2400 
+WAY: 1 | VALID: 1 | DIRTY: 0 | TAG: 0666 | LRU: 2 | ADDRESS: 0x666C243E 
+WAY: 2 | VALID: 1 | DIRTY: 0 | TAG: 0888 | LRU: 1 | ADDRESS: 0x888C242F 
+WAY: 3 | VALID: 1 | DIRTY: 0 | TAG: 0703 | LRU: 0 | ADDRESS: 0x703C2400 
 
 
 ================================================
@@ -56,8 +42,8 @@ Number of cache misses: 0
 Hit ratio percentage: 0.00 % 
 
 ~~~~~~~~~~~~~ Data Statistics ~~~~~~~~~~~~~
-Number of cache reads: 0
-Number of cache writes: 0
-Number of cache hits: 0
-Number of cache misses: 0
-Hit ratio percentage: 0.00 % 
+Number of cache reads: 8
+Number of cache writes: 9
+Number of cache hits: 3
+Number of cache misses: 14
+Hit ratio percentage: 17.65 % 
