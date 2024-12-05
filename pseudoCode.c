@@ -11,22 +11,33 @@ void UpdateState_DataCache(int set, int way, int event) {
     // Updates the state of a cache line in the data cache
     Switch current state:
         Case 'M':
-            Handle transitions for RESET or L2_EVICT
+            Handle transitions for RESET or L2_EVICT change to Invalid state
+            Handle transitions for L2_SNOOP_DATA change to Valid state
+            else  Read or Write remain the same state of Modified line
         Case 'V':
             Handle transitions for RESET, WRITE, or L2_EVICT
+            Reset --> Invalid state
+            L1_WRITE_DATA --> Modified
+            L2_EVICT --> Invalid
+            else Valid
         Default:
             Handle transitions for READ or WRITE
+            L1_READ_DATA --> Valid
+            L1_WRITE_DATA --> Invalid
 }
 
 void UpdateState_InsCache(int set, int way, int event) {
     // Updates the state of a cache line in the instruction cache
     Switch current state:
         Case 'V':
-            Handle transitions for RESET or READ
+            Handle transitions for RESET or L2_EVICT change state to Invalid
+            L1_READ_INST --> Valid
         Default:
             Handle transitions for RESET or FETCH
-}
+            L1_READ_INST --> Valid
+            RESET or L2_EVICT --> Invalid
 
+}
 void DataUpdateLRU(int set, int way) {
     // Updates LRU for data cache
     Adjust LRU values for all lines in the set
