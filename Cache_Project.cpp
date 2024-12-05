@@ -287,7 +287,7 @@ void DataMiss(int set_index, int line_index, int new_tag, int n, char *debugMess
 	if(n == 1){ 
 		//Decomment this code when got bug
 		//L2COM(set_index, line_index, 4); // write through in case first write
-		//Write to L2
+		//Write back to L2
 		L2COM(set_index, line_index, 2); // write through in case first write
 	}
 	/*Got DataMiss, after fetching data from L2 */
