@@ -38,7 +38,6 @@
 #define	L1_WRITE_DATA	1	// write data request to L1 data cache
 #define	L1_READ_INST	2	// instruction fetch (a read request to L1 instruction cache)
 #define	L2_EVICT		3	// invalidate command from L2
-#define	L2_SNOOP_DATA	4	// data request from L2 (in response to snoop)
 #define	RESET			8	// clear the cache and reset all state (and statistics)
 #define	PRINT			9	// print contents and state of the cache (allow subsequent trace activity)
 
