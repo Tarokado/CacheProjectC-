@@ -285,7 +285,10 @@ void DataMiss(int set_index, int line_index, int new_tag, int n, char *debugMess
 	Data_Cache[set_index][line_index].byte_offset = data_offset;
 	//Write operation L1 when write through must be written into L2 maintain inclusivity
 	if(n == 1){ 
-		L2COM(set_index, line_index, 4); // write through in case first write
+		//Decomment this code when got bug
+		//L2COM(set_index, line_index, 4); // write through in case first write
+		//Write to L2
+		L2COM(set_index, line_index, 2); // write through in case first write
 	}
 	/*Got DataMiss, after fetching data from L2 */
 	//Update the state of cache line making valid and modified
