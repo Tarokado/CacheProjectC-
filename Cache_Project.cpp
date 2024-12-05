@@ -65,7 +65,6 @@ Event in this cache:
     - L1_Read_Data: Read data from L1 cache
     - L1_Write_Data: Write data to L1 cache
     - L2_Evict: Eviction from L2 cache
-    - L2_SNOOP_DATA: 
 */
 //Function for data cache
 void UpdateState_DataCache(int set, int way, int n){
@@ -77,12 +76,6 @@ void UpdateState_DataCache(int set, int way, int n){
 			if(n == RESET || n == L2_EVICT) { // (6) If reset the data in this cache line and the L2 is evict data to 
 				// Reset
 				Data_Cache[set][way].state = 'I'; //Change the state to from modified to invalid
-			}
-            //If the cache line is in Modified and snooped by L2, the data written back to L2 ensure inclusivity(perform write back operation)
-			else if(n == L2_SNOOP_DATA) { // (8)
-				// Read from L2 (snoop data)
-				Data_Cache[set][way].state = 'V'; //Change to "V" state -> Hold a clean copy that data matches L2 have
-                //The cache still have a data but not exclusive owernship
 			}
             //The events does not affect to read write at Modified state
 			else { // Data Read or Data Write dont change state (5)
