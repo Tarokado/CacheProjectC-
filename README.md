@@ -24,3 +24,6 @@ _ Result will be printed in _store_history.txt_ and console as well.
 
 
 i hate this job :)
+
+After finishing this course:
+I love this job <3
